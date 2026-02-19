@@ -34,6 +34,7 @@ const Login = () => {
       if (userRole.includes('NURSE')) navigate('/nurse/vitals');
       else if (userRole.includes('RECEPTIONIST')) navigate('/receptionist/booking');
       else if (userRole.includes('DOCTOR')) navigate('/doctor/dashboard');
+      else if (userRole.includes('PHARMACIST'))  navigate('/pharmacy/dashboard');
       else navigate('/'); 
     } catch (err) {
       setError('Invalid credentials');

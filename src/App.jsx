@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import ReceptionistBooking from './pages/Receptionist/Booking'; 
 import DoctorDashboard from './pages/Doctor/Dashboard'; 
 import NurseVitals from './pages/Nurse/Vitals';
+import PharmacyDashboard from './pages/Pharmacy/Dashboard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, role }) => {
@@ -46,7 +47,14 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
+          <Route 
+            path="/pharmacy/dashboard" 
+            element={
+              <ProtectedRoute role="PHARMACIST">
+                <PharmacyDashboard />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </Router>
     </AuthProvider>
