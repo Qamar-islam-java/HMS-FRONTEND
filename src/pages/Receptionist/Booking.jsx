@@ -90,7 +90,7 @@ const ReceptionistBooking = () => {
     }
   }, [specialty]);
 
-  // --- PDF GENERATION FUNCTION ---
+    // --- PDF GENERATION FUNCTION ---
   const generateAppointmentSlip = (tokenNumber) => {
     // Find Doctor Name from the list
     const doctorObj = doctors.find(d => d.id === parseInt(selectedDoctor));
@@ -106,41 +106,45 @@ const ReceptionistBooking = () => {
     
     // Style it to look like a receipt
     element.innerHTML = `
-      <div style="font-family: Arial, sans-serif; padding: 10px; text-align: center; border: 2px solid #00796b; border-radius: 10px; max-width: 750px; margin: auto;">
-        <h2 style="color: #00796b; margin: 0;">CRESCENT</h2>
-        <h4 style="color: #555; margin: 5px 0 20px 0;">HOSPITAL MANAGEMENT</h4>
-        <hr style="border: 1px solid #00796b; margin-bottom: 1px;">
-        <h4 style="color: #333;">Appointment Slip</h4>
-        <table style="width: 50%; margin-top: 1px; text-align: left; font-size: 16px; color: #333;">
+      <div style="font-family: Arial, sans-serif; padding: 15px; text-align: center; border: 2px solid #00796b; border-radius: 10px; max-width: 100%; margin: auto; box-sizing: border-box;">
+        <h2 style="color: #00796b; margin: 0; font-size: 24px;">CRESCENT</h2>
+        <h4 style="color: #555; margin: 5px 0 15px 0; font-size: 14px;">HOSPITAL MANAGEMENT</h4>
+        <hr style="border: 1px solid #00796b; margin-bottom: 10px;">
+        
+        <h4 style="color: #333; margin: 0 0 15px 0; font-size: 18px; text-transform: uppercase;">Appointment Slip</h4>
+        
+        <table style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 0px; text-align: left; color: #333;">
           <tr>
-            <td style="padding: 1px;"><strong>Token No:</strong></td>
-            <td style="padding: 1px; font-weight: bold; color: #00796b; font-size: 20px;">#${tokenNumber}</td>
+            <!-- Fixed width columns ensure the receipt width stays constant -->
+            <td style="padding: 8px 5px; width: 40%; color: #555; font-size: 13px; font-weight: bold; vertical-align: top;">Token No:</td>
+            <td style="padding: 8px 5px; width: 60%; font-weight: bold; color: #00796b; font-size: 18px; vertical-align: top; word-break: break-word;">#${tokenNumber}</td>
           </tr>
           <tr>
-            <td style="padding: 1px;"><strong>Date:</strong></td>
-            <td style="padding: 1px;">${dateStr}</td>
+            <td style="padding: 8px 5px; color: #555; font-size: 13px; font-weight: bold; vertical-align: top;">Date:</td>
+            <td style="padding: 8px 5px; font-size: 13px; vertical-align: top; word-break: break-word;">${dateStr}</td>
           </tr>
           <tr>
-            <td style="padding: 1px;"><strong>Time:</strong></td>
-            <td style="padding: 1px;">${timeStr}</td>
+            <td style="padding: 8px 5px; color: #555; font-size: 13px; font-weight: bold; vertical-align: top;">Time:</td>
+            <td style="padding: 8px 5px; font-size: 13px; vertical-align: top; word-break: break-word;">${timeStr}</td>
           </tr>
           <tr>
-            <td style="padding: 1px;"><strong>Department:</strong></td>
-            <td style="padding: 1px; text-transform: capitalize;">${specialty}</td>
+            <td style="padding: 8px 5px; color: #555; font-size: 13px; font-weight: bold; vertical-align: top;">Department:</td>
+            <td style="padding: 8px 5px; font-size: 13px; vertical-align: top; word-break: break-word; text-transform: capitalize;">${specialty}</td>
           </tr>
           <tr>
-            <td style="padding: 1px;"><strong>Doctor:</strong></td>
-            <td style="padding: 1px;">${doctorName}</td>
+            <td style="padding: 8px 5px; color: #555; font-size: 13px; font-weight: bold; vertical-align: top;">Doctor:</td>
+            <!-- word-break: break-word handles long names automatically -->
+            <td style="padding: 8px 5px; font-size: 13px; vertical-align: top; word-break: break-word;">${doctorName}</td>
           </tr>
           <tr>
-            <td style="padding: 1px;"><strong>Patient:</strong></td>
-            <td style="padding: 1px;">${patient.name}</td>
+            <td style="padding: 8px 5px; color: #555; font-size: 13px; font-weight: bold; vertical-align: top;">Patient:</td>
+            <td style="padding: 8px 5px; font-size: 13px; vertical-align: top; word-break: break-word;">${patient.name}</td>
           </tr>
         </table>
 
-        <div style="margin-top: 20px; color: #777; font-size: 12px;">
-          <p>Please present this slip at the Nurse Station.</p>
-          <p>Thank you for choosing Crescent Hospital.</p>
+        <div style="margin-top: 20px; color: #777; font-size: 11px; line-height: 1.4;">
+          <p style="margin: 0;">Please present this slip at the Nurse Station.</p>
+          <p style="margin: 5px 0 0 0;">Thank you for choosing Crescent Hospital.</p>
         </div>
       </div>
     `;
@@ -151,7 +155,8 @@ const ReceptionistBooking = () => {
       filename:     `Appointment_Token_${tokenNumber}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' } // Small receipt size
+      // Increased height to 300mm so long names don't get cut off at the bottom
+      jsPDF:        { unit: 'mm', format: [80, 155], orientation: 'portrait' } 
     };
 
     // Generate and Open
@@ -160,6 +165,76 @@ const ReceptionistBooking = () => {
       window.open(url, '_blank');
     });
   };
+  // // --- PDF GENERATION FUNCTION ---
+  // const generateAppointmentSlip = (tokenNumber) => {
+  //   // Find Doctor Name from the list
+  //   const doctorObj = doctors.find(d => d.id === parseInt(selectedDoctor));
+  //   const doctorName = doctorObj ? doctorObj.name : "Unknown Doctor";
+    
+  //   // Current Date and Time
+  //   const now = new Date();
+  //   const dateStr = now.toLocaleDateString();
+  //   const timeStr = now.toLocaleTimeString();
+
+  //   // Create a temporary element to render the PDF content
+  //   const element = document.createElement('div');
+    
+  //   // Style it to look like a receipt
+  //   element.innerHTML = `
+  //     <div style="font-family: Arial, sans-serif; padding: 10px; text-align: center; border: 2px solid #00796b; border-radius: 10px; max-width: 750px; margin: auto;">
+  //       <h2 style="color: #00796b; margin: 0;">CRESCENT</h2>
+  //       <h4 style="color: #555; margin: 5px 0 20px 0;">HOSPITAL MANAGEMENT</h4>
+  //       <hr style="border: 1px solid #00796b; margin-bottom: 1px;">
+  //       <h4 style="color: #333;">Appointment Slip</h4>
+  //       <table style="width: 50%; margin-top: 1px; text-align: left; font-size: 16px; color: #333;">
+  //         <tr>
+  //           <td style="padding: 1px;"><strong>Token No:</strong></td>
+  //           <td style="padding: 1px; font-weight: bold; color: #00796b; font-size: 20px;">#${tokenNumber}</td>
+  //         </tr>
+  //         <tr>
+  //           <td style="padding: 1px;"><strong>Date:</strong></td>
+  //           <td style="padding: 1px;">${dateStr}</td>
+  //         </tr>
+  //         <tr>
+  //           <td style="padding: 1px;"><strong>Time:</strong></td>
+  //           <td style="padding: 1px;">${timeStr}</td>
+  //         </tr>
+  //         <tr>
+  //           <td style="padding: 1px;"><strong>Department:</strong></td>
+  //           <td style="padding: 1px; text-transform: capitalize;">${specialty}</td>
+  //         </tr>
+  //         <tr>
+  //           <td style="padding: 1px;"><strong>Doctor:</strong></td>
+  //           <td style="padding: 1px;">${doctorName}</td>
+  //         </tr>
+  //         <tr>
+  //           <td style="padding: 1px;"><strong>Patient:</strong></td>
+  //           <td style="padding: 1px;">${patient.name}</td>
+  //         </tr>
+  //       </table>
+
+  //       <div style="margin-top: 20px; color: #777; font-size: 12px;">
+  //         <p>Please present this slip at the Nurse Station.</p>
+  //         <p>Thank you for choosing Crescent Hospital.</p>
+  //       </div>
+  //     </div>
+  //   `;
+
+  //   // PDF Configuration
+  //   const opt = {
+  //     margin:       10,
+  //     filename:     `Appointment_Token_${tokenNumber}.pdf`,
+  //     image:        { type: 'jpeg', quality: 0.98 },
+  //     html2canvas:  { scale: 2 },
+  //     jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' } // Small receipt size
+  //   };
+
+  //   // Generate and Open
+  //   html2pdf().set(opt).from(element).output('blob').then((blob) => {
+  //     const url = URL.createObjectURL(blob);
+  //     window.open(url, '_blank');
+  //   });
+  // };
 
   // 4. Book Appointment
   const handleBook = async () => {
