@@ -24,6 +24,7 @@ const PharmacyDashboard = () => {
 
     try {
       // Calling the endpoint you just created: /api/pharmacy/find?token=105
+      console.log("----------------",tokenNumber);
       const response = await api.get(`/api/pharmacy/find?token=${tokenNumber}`);
       
       if (response.data) {
