@@ -14,7 +14,7 @@ const ReceptionistBooking = () => {
   const [searchError, setSearchError] = useState('');
   
   // --- Patient State ---
-  const [patient, setPatient] = useState(null); // Holds the found/registered patient
+  const [patient, setPatient] = useState(null); 
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [registerData, setRegisterData] = useState({
     name: '',
@@ -24,9 +24,17 @@ const ReceptionistBooking = () => {
 
   // --- Booking State ---
   const [specialty, setSpecialty] = useState('');
+  const [specialties, setSpecialties] = useState([]); // NEW: List of all specialties
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [message, setMessage] = useState('');
+
+  // 0. Fetch All Specialties on Load
+  useEffect(() => {
+    api.get('/api/doctor/specialties')
+      .then(res => setSpecialties(res.data))
+      .catch(err => console.error("Failed to load specialties", err));
+  }, []);
 
   // 1. Search Patient
   const handleSearch = async () => {
@@ -42,7 +50,6 @@ const ReceptionistBooking = () => {
       setPatient(response.data);
     } catch (err) {
       if (err.response && err.response.status === 404) {
-        // Patient not found -> Show Register Form
         setShowRegisterForm(true);
         setSearchError('Patient not found. Please register.');
       } else {
@@ -62,7 +69,7 @@ const ReceptionistBooking = () => {
         nationalId: nationalId
       };
       const response = await api.post('/api/patient/register', payload);
-      setPatient(response.data); // Auto-fill the patient with the new data
+      setPatient(response.data); 
       setShowRegisterForm(false);
       setSearchError('');
     } catch (err) {
@@ -70,7 +77,7 @@ const ReceptionistBooking = () => {
     }
   };
 
-  // 3. Fetch Doctors for Booking (Existing Logic)
+  // 3. Fetch Doctors when Specialty changes
   useEffect(() => {
     if (specialty) {
       api.get(`/api/doctor/list/${specialty}`)
@@ -82,16 +89,15 @@ const ReceptionistBooking = () => {
     }
   }, [specialty]);
 
-  // 4. Book Appointment (Existing Logic)
+  // 4. Book Appointment
   const handleBook = async () => {
     if (!selectedDoctor || !patient) return;
     try {
       const response = await api.post('/api/appointment/book', {
-        patientId: patient.id, // Use the actual patient ID
+        patientId: patient.id,
         doctorId: parseInt(selectedDoctor)
       });
       setMessage(`Appointment Booked! Token Number: ${response.data.tokenNumber}`);
-      // Reset booking fields but keep patient
       setSpecialty('');
       setSelectedDoctor('');
       setDoctors([]);
@@ -137,7 +143,6 @@ const ReceptionistBooking = () => {
           </Box>
           {searchError && <Alert severity="warning" sx={{ mt: 2 }}>{searchError}</Alert>}
           
-          {/* Display Found Patient */}
           {patient && !showRegisterForm && (
             <Alert severity="success" sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
               <Box>
@@ -148,7 +153,7 @@ const ReceptionistBooking = () => {
           )}
         </Paper>
 
-        {/* --- SECTION 2: REGISTRATION FORM (Only if New) --- */}
+        {/* --- SECTION 2: REGISTRATION FORM --- */}
         {showRegisterForm && (
           <Paper elevation={4} sx={{ width: '100%', maxWidth: 600, p: 4, mt: 3, borderRadius: 3, border: '2px dashed #00796b' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -191,7 +196,7 @@ const ReceptionistBooking = () => {
           </Paper>
         )}
 
-        {/* --- SECTION 3: BOOKING FORM (Only if Patient Found) --- */}
+        {/* --- SECTION 3: BOOKING FORM --- */}
         {patient && !showRegisterForm && (
           <Paper elevation={4} sx={{ width: '100%', maxWidth: 600, p: 4, mt: 3, borderRadius: 3 }}>
             <Typography variant="h6" fontWeight="bold" color="#333" gutterBottom>
@@ -202,8 +207,12 @@ const ReceptionistBooking = () => {
               fullWidth select label="Specialty" value={specialty}
               onChange={(e) => setSpecialty(e.target.value)} sx={{ mb: 3 }}
             >
-              <MenuItem value="Cardiology">Cardiology</MenuItem>
-              <MenuItem value="Dermatology">Dermatology</MenuItem>
+              {/* DYNAMIC MAPPING OF SPECIALTIES */}
+              {specialties.map((spec) => (
+                <MenuItem key={spec} value={spec}>
+                  {spec}
+                </MenuItem>
+              ))}
             </TextField>
 
             <TextField
